@@ -30,6 +30,7 @@ jobs:
     steps:
       # Checkout the code as the first step.
       - checkout
+      - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
       - run: |
           mkdir -p config && echo 'test:
             database: circle_test
