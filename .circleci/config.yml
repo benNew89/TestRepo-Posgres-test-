@@ -30,7 +30,7 @@ jobs:
     steps:
       # Checkout the code as the first step.
       - checkout
-      - run: |-
+      - run: |
           mkdir -p config && echo 'test:
             database: circle_test
             adapter: postgresql
