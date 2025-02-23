@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    pg (1.4.6)
+    rake (13.0.6)
+    bundler (2.4.10)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  pg
+  rake
+  bundler
+
+BUNDLED WITH
+   2.4.10
