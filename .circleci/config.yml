@@ -35,6 +35,7 @@ jobs:
     steps:
       # Checkout the code as the first step.
       - checkout
+      - run: echo $pwd
       - run:
           name: Wait for Postgres
           command: dockerize -wait tcp://localhost:5432 -timeout 10m
@@ -55,7 +56,6 @@ jobs:
             username: ubuntu
             host: localhost
           ' > config/database.yml
-      - run: echo $pwd
       - run: sudo apt-get --allow-releaseinfo-change update
       - run: sudo apt install -y libvips || true
       - run: sudo apt install -y postgresql-client || true
