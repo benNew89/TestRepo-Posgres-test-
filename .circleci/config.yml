@@ -50,7 +50,8 @@ jobs:
           name: install gem dependencies
           #command: sudo apt update && sudo apt install -y nodejs poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
           command: sudo apt update && sudo apt install -y poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
-      - run: bundle install --path vendor/bundle
+      - run: bundle config set path 'vendor/bundle'
+      - run: bundle install
       - run: |
           mkdir -p config && echo 'test:
             database: circle_test
