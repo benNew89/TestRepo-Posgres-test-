@@ -30,16 +30,12 @@ jobs:
      - image: cimg/postgres:16.7
        environment:
          POSTGRES_DB: circle_test
-    parallelism: 2
+    # parallelism: 2
     # Add steps to the job
     # See: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
     steps:
       # Checkout the code as the first step.
       - checkout
-      - run: echo $pwd
-      - run:
-          name: Wait for Postgres
-          command: dockerize -wait tcp://localhost:5432 -timeout 10m
       - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
       - run: echo -e "export RAILS_ENV=test\nexport RACK_ENV=test" >> $BASH_ENV
       - run:
@@ -48,6 +44,19 @@ jobs:
             echo 'export BUNDLER_VERSION=$(cat Gemfile.lock | tail -1 | tr -d " ")' >> $BASH_ENV
             source $BASH_ENV
             gem install bundler
+
+      - run: curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+      - run: 
+          name: install gem dependencies
+          #command: sudo apt update && sudo apt install -y nodejs poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
+          command: sudo apt update && sudo apt install -y poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
+      - run:
+          name: bundle lifetalesV2-server
+          command: 'bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+      - run:
+          name: bundle components/reminders
+          command: 'cd components/reminders; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+      
       - run: |
           mkdir -p config && echo 'test:
             database: circle_test
