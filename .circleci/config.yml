@@ -40,10 +40,22 @@ jobs:
       - run:
           name: "Debug: Check if Gemfile exists"
           command: ls -la /home/circleci/project
+          
+      # Debugging steps
       - run:
-          name: Set working directory
-          working_directory: /home/circleci/project
-          command: bundle config set path 'vendor/bundle'
+          name: "Debug - Show Current Directory"
+          command: pwd
+      - run:
+          name: "Debug - List Files in Project"
+          command: ls -la /home/circleci/project
+          
+      # Install Bundler if needed
+      - run:
+          name: "Install Bundler"
+          command: gem install bundler -v $(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)
+      - run:
+          name: "Debug - Check Bundler Version"
+          command: bundle -v
 
       - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
       - run: echo -e "export RAILS_ENV=test\nexport RACK_ENV=test" >> $BASH_ENV
@@ -60,7 +72,13 @@ jobs:
           #command: sudo apt update && sudo apt install -y nodejs poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
           command: sudo apt update && sudo apt install -y poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
       - run:
-          name: Install dependencies
+          name: "Set Bundler path"
+          working_directory: /home/circleci/project
+          command: bundle config set path 'vendor/bundle'
+
+      # Install dependencies
+      - run:
+          name: "Install dependencies"
           working_directory: /home/circleci/project
           command: bundle install
       - run: |
