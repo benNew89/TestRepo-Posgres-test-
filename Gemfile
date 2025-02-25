@@ -8,6 +8,7 @@ gem 'dotenv', '~> 2.8' # Load environment variables
 gem 'rake', '~> 13.0' # Task management
 gem 'rspec-rails', '~> 6.0' # Testing framework for Rails
 gem 'bundler', '~> 2.3' # Dependency manager
+gem 'mailerlite', '~> 1.0' # MailerLite API client (if needed)
 
 group :development, :test do
   gem 'rubocop', '~> 1.59' # Linter for Ruby
