@@ -37,6 +37,7 @@ jobs:
     steps:
       # Checkout the code as the first step.
       - checkout
+          path: /home/circleci/project
       - run:
           name: "Debug: Check if Gemfile exists"
           command: ls -la /home/circleci/project
