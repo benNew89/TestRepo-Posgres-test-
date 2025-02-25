@@ -38,6 +38,9 @@ jobs:
       # Checkout the code as the first step.
       - checkout
       - run:
+          name: Debug: Check if Gemfile exists
+          command: ls -la /home/circleci/project
+      - run:
           name: Set working directory
           working_directory: /home/circleci/project
           command: bundle config set path 'vendor/bundle'
