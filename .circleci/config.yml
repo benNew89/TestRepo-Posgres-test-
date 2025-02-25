@@ -29,6 +29,7 @@ jobs:
          PAGER: cat # prevent psql commands using less
      - image: cimg/postgres:16.7
        environment:
+         POSTGRES_USER: ubuntu
          POSTGRES_DB: circle_test
     # parallelism: 2
     # Add steps to the job
