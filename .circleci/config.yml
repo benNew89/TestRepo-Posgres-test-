@@ -95,7 +95,7 @@ jobs:
       - run: sudo apt install -y libvips || true
       - run: sudo apt install -y postgresql-client || true
       - run: sudo apt install -y poppler-utils || true
-      - run: MAILERLITE_API_TOKEN=mailerlite-api-token RAILS_ENV=test bundle exec rails db:drop db:create db:schema:load --trace
+      - run: MAILERLITE_API_TOKEN=mailerlite-api-token bundle exec rake db:create db:test:load --trace
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
