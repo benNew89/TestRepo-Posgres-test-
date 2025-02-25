@@ -6,7 +6,7 @@ gem 'rails', '~> 7.0' # Rails framework
 gem 'pg', '~> 1.4' # PostgreSQL adapter
 gem 'dotenv', '~> 2.8' # Load environment variables
 gem 'rake', '~> 13.0' # Task management
-gem 'rspec', '~> 6.0' # Testing framework for Rails
+gem 'rspec-rails', '~> 6.0' # Testing framework for Rails
 gem 'bundler', '~> 2.3' # Dependency manager
 
 group :development, :test do
