@@ -10,7 +10,7 @@ jobs:
     docker:
       - image: cimg/ruby:3.0.5-node
         environment:
-          #TEST_DATABASE_URL: postgresql://postgres@localhost/circle_test
+          TEST_DATABASE_URL: postgresql://postgres@localhost/circle_test
           RAILS_ENV: test
           RACK_ENV: test
           PGHOST: 127.0.0.1
