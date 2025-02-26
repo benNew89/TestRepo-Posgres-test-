@@ -61,6 +61,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install postgresql-client
       - run: sudo apt install -y postgresql-client || true
+      - run: sudo apt install -y poppler-utils || true
       - run: whoami
       - run: |
           psql \
