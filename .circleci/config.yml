@@ -53,7 +53,7 @@ jobs:
             adapter: postgresql
             encoding: unicode
             pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-            username: ubuntu
+            username: postgresql
             host: localhost
           ' > config/database.yml
       - run: sudo apt-get update
