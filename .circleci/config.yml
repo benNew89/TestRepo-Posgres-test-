@@ -97,6 +97,12 @@ jobs:
           name: Change to project directory
           command: cd /home/circleci/project
       - run:
+          name: Ensure Bundler and Rails are installed
+          command: |
+            cd /home/circleci/project
+            bundle install
+            gem list rails
+      - run:
           name: Setup test database (with retry)
           command: |
             cd /home/circleci/project
