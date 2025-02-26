@@ -17,9 +17,7 @@
 #     # See: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
 #     steps:
 
-#       - run:
-#           name: "Debug: Check if Gemfile exists"
-#           command: ls -la /home/circleci/project
+
           
 #       # Debugging steps
 #       - run:
@@ -137,3 +135,6 @@ jobs:
           psql \
           -d $TEST_DATABASE_URL \
           -c "INSERT INTO test VALUES ('John'), ('Joanna'), ('Jennifer');"
+      - run:
+          name: "Debug: Check if Gemfile exists"
+          command: ls -la /home/circleci/project
