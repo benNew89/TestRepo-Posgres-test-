@@ -93,6 +93,7 @@ jobs:
             username: postgres
             host: localhost
           ' > config/database.yml
+          cat config/database.yml
       - run: sudo apt-get --allow-releaseinfo-change update
       - run: sudo apt install -y libvips || true
       - run: sudo apt install -y postgresql-client || true
