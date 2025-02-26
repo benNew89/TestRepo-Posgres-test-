@@ -14,7 +14,7 @@ jobs:
           RAILS_ENV: test
           RACK_ENV: test
           PGHOST: 127.0.0.1
-          PGUSER: postgres
+          PGUSER: ubuntu
           BUNDLE_JOBS: 3
           BUNDLE_RETRY: 3
           BUNDLE_PATH: vendor/bundle
