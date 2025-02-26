@@ -62,6 +62,37 @@ jobs:
       - run: sudo apt-get install postgresql-client
       - run: sudo apt install -y postgresql-client || true
       - run: sudo apt install -y poppler-utils || true
+      - run:
+         name: Force Disconnect Users from Postgres
+         command: |
+           echo "Before disconnecting:"
+           psql -U ubuntu -d circle_test -c "SELECT pid, usename, state FROM pg_stat_activity WHERE datname = 'circle_test';"
+      
+           echo "Preventing new connections..."
+           psql -U ubuntu -d circle_test -c "ALTER DATABASE circle_test CONNECTION LIMIT 0;"
+      
+           echo "Canceling active queries..."
+           psql -U ubuntu -d circle_test -c "
+             SELECT pg_cancel_backend(pg_stat_activity.pid) 
+             FROM pg_stat_activity 
+             WHERE datname = 'circle_test' AND pid <> pg_backend_pid();
+           "
+
+           echo "Terminating lingering connections..."
+           psql -U ubuntu -d circle_test -c "
+             SELECT pg_terminate_backend(pg_stat_activity.pid) 
+             FROM pg_stat_activity 
+             WHERE datname = 'circle_test' AND pid <> pg_backend_pid();
+           "
+
+           echo "Waiting for connections to close..."
+           sleep 3
+
+           echo "After disconnecting:"
+           psql -U ubuntu -d circle_test -c "SELECT pid, usename, state FROM pg_stat_activity WHERE datname = 'circle_test';"
+      
+           echo "Restoring connection limit..."
+           psql -U ubuntu -d circle_test -c "ALTER DATABASE circle_test CONNECTION LIMIT -1;"
       - run: whoami
       - run: |
           psql \
