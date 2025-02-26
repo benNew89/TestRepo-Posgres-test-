@@ -24,7 +24,7 @@ jobs:
     # Service container image
       - image: cimg/postgres:16.7
         environment:
-          POSTGRES_USER: ubuntu
+          POSTGRES_USER: postgres
           POSTGRES_DB: circle_test
 
     steps:
@@ -53,7 +53,7 @@ jobs:
             adapter: postgresql
             encoding: unicode
             pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-            username: postgresql
+            username: postgres
             host: localhost
           ' > config/database.yml
       - run: sudo apt-get update
