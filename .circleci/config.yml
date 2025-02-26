@@ -47,9 +47,15 @@ jobs:
       - run:
           name: bundle lifetalesV2-server
           command: 'bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
-      - run:
-          name: bundle components/tracker
-          command: 'cd components/tracker; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+      - run: |-
+          mkdir -p config && echo 'test:
+            database: circle_test
+            adapter: postgresql
+            encoding: unicode
+            pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+            username: ubuntu
+            host: localhost
+          ' > config/database.yml
       - run: sudo apt-get update
       - run: sudo apt-get install postgresql-client
       - run: whoami
