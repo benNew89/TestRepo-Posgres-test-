@@ -56,8 +56,6 @@ jobs:
             username: postgres
             host: localhost
           ' > config/database.yml
-      - run: |-
-          cp config/database.yml components/tracker/test/dummy/config/
       - run: sudo apt-get update
       - run: sudo apt-get install postgresql-client
       - run: whoami
