@@ -103,6 +103,10 @@ jobs:
             bundle install
             gem list rails
       - run:
+          name: Debug Postgres connection
+          command: |
+            PGPASSWORD='' psql -U ubuntu -h 127.0.0.1 -d circle_test -c '\l'
+      - run:
           name: Setup test database (with retry)
           command: |
             cd /home/circleci/project
