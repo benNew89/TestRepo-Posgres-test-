@@ -53,7 +53,7 @@ jobs:
             adapter: postgresql
             encoding: unicode
             pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-            username: jarvis
+            username: ubuntu
             host: localhost
           ' > config/database.yml
       - run: sudo apt-get --allow-releaseinfo-change update
@@ -93,6 +93,9 @@ jobs:
       
       #      echo "Restoring connection limit..."
       #      psql -U ubuntu -d circle_test -c "ALTER DATABASE circle_test CONNECTION LIMIT -1;"
+      - run:
+          name: Change to project directory
+          command: cd /home/circleci/project
       - run:
           name: Setup test database (with retry)
           command: |
