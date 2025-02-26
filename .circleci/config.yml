@@ -50,6 +50,10 @@ jobs:
       - run:
           name: Check if Rails is installed
           command: bundle exec rails -v
+
+      - run:
+          name: Regenerate bin/rails
+          command: bundle exec rake app:update:bin
       - run:
           name: Check for Rails files
           command: ls -la config/ db/ bin/
