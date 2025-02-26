@@ -107,6 +107,11 @@ jobs:
           command: |
             PGPASSWORD='' psql -U ubuntu -h 127.0.0.1 -d circle_test -c '\l'
       - run:
+          name: Debug current directory
+          command: |
+            echo "Current directory: $(pwd)"
+            ls -la
+      - run:
           name: Setup test database (with retry)
           command: |
             cd /home/circleci/project
