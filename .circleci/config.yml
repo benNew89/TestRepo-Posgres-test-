@@ -61,11 +61,11 @@ jobs:
       - run: whoami
       - run: |
           psql \
-          -d $TEST_DATABASE_URL \
+          -d localhost \
           -c "CREATE TABLE test (name char(25));"
       - run: |
           psql \
-          -d $TEST_DATABASE_URL \
+          -d localhost \
           -c "INSERT INTO test VALUES ('John'), ('Joanna'), ('Jennifer');"
       - run:
           name: "Debug: Check if Gemfile exists"
