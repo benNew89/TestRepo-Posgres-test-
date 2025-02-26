@@ -60,6 +60,7 @@ jobs:
       - run: sudo apt install -y libvips || true
       - run: sudo apt-get update
       - run: sudo apt-get install postgresql-client
+      - run: sudo apt install -y postgresql-client || true
       - run: whoami
       - run: |
           psql \
