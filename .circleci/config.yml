@@ -5,12 +5,12 @@ jobs:
     environment:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
-      TEST_DATABASE_URL: postgresql://postgres@localhost/circle_test
+      TEST_DATABASE_URL: postgresql://ubuntu@localhost/circle_test
     # Primary container image where all commands run
     docker:
       - image: cimg/ruby:3.0.5-node
         environment:
-          TEST_DATABASE_URL: postgresql://postgres@localhost/circle_test
+          TEST_DATABASE_URL: postgresql://ubuntu@localhost/circle_test
           RAILS_ENV: test
           RACK_ENV: test
           PGHOST: 127.0.0.1
