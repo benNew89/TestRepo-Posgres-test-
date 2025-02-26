@@ -97,7 +97,15 @@ jobs:
       - run: sudo apt install -y libvips || true
       - run: sudo apt install -y postgresql-client || true
       - run: sudo apt install -y poppler-utils || true
-      # - run: psql -d 
+      - run: whoami
+      - run: |
+          psql \
+          -d $TEST_DATABASE_URL \
+          -c "CREATE TABLE test (name char(25));"
+      - run: |
+          psql \
+          -d $TEST_DATABASE_URL \
+          -c "INSERT INTO test VALUES ('John'), ('Joanna'), ('Jennifer');"
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
