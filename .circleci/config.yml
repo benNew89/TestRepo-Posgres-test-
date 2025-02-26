@@ -16,22 +16,6 @@
 #       TEST_DATABASE_URL: postgresql://postgres@localhost/circle_test
 #     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
 #     # See: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
-#     docker:
-#      - image: cimg/ruby:3.0.5-node
-#        environment:
-#          RAILS_ENV: test
-#          RACK_ENV: test
-#          PGHOST: 127.0.0.1
-#          PGUSER: root
-#          BUNDLE_JOBS: 3
-#          BUNDLE_RETRY: 3
-#          BUNDLE_PATH: vendor/bundle
-#          PSQL_PAGER: ''
-#          PAGER: cat # prevent psql commands using less
-#      - image: cimg/postgres:16.7
-#        environment:
-#          POSTGRES_USER: ubuntu
-#          POSTGRES_DB: circle_test
 #     # parallelism: 2
 #     # Add steps to the job
 #     # See: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
@@ -119,7 +103,10 @@ version: 2.1
 
 jobs:
   build:
-
+    environment:
+    CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
+    CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+    TEST_DATABASE_URL: postgresql://postgres@localhost/circle_test
     # Primary container image where all commands run
     docker:
       - image: cimg/ruby:3.0.5-node
