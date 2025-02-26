@@ -1,31 +1,26 @@
 require 'rake'
-require 'active_record'
-require 'rake/testtask'
-require 'dotenv'
 
-# Load environment variables from .env if available
-Dotenv.load if File.exist?('.env')
-
-# Load Rails tasks if using Rails
+# Attempt to load Rails if available
 begin
-  require File.expand_path('config/application', __dir__)
-  require 'rake'
+  require File.expand_path('config/environment', __dir__)
+  require 'active_record/railtie'
   Rails.application.load_tasks
 rescue LoadError
-  puts "Rails environment not found. Ensure you're in a Rails project."
+  puts "⚠️ Warning: Rails environment not found. Ensure this is a Rails project and you're running inside the correct directory."
 end
 
+# Define database tasks
 namespace :db do
   desc "Create database"
   task :create do
-    sh "bundle exec rake db:create"
+    sh "bundle exec rails db:create"
   end
 
   desc "Load test schema"
   task :test_load do
-    sh "bundle exec rake db:test:load"
+    sh "bundle exec rails db:test:prepare"
   end
 end
 
-# Define a default task (e.g., run tests)
+# Default task (optional)
 task default: [:db_create, :db_test_load]
