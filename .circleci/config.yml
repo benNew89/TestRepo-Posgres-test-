@@ -84,7 +84,6 @@ jobs:
           command: bundle install
       - run: |
           set -x
-          touch config/database.yml
           mkdir -p config && echo 'test:
             database: circle_test
             adapter: postgresql
