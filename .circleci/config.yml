@@ -50,6 +50,9 @@ jobs:
       - run:
           name: Check if Rails is installed
           command: bundle exec rails -v
+      - run:
+          name: Check for Rails files
+          command: ls -la config/ db/ bin/
 
       - run: |-
           mkdir -p config && echo 'test:
