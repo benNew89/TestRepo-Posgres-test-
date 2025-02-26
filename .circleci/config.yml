@@ -124,6 +124,7 @@ jobs:
       # Checkout the code as the first step.
       - checkout:
           path: /home/circleci/project
+      - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
       - run: sudo apt-get update
       - run: sudo apt-get install postgresql-client
       - run: whoami
