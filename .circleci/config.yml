@@ -28,7 +28,7 @@ commands:
     steps:
       - run:
           name: Wait for Postgres
-          command: dockerize -wait tcp://localhost:5432 -timeout 10m
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
   setup_artifacts_and_tests:
     steps:
       - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
