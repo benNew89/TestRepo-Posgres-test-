@@ -15,13 +15,14 @@ executors:
           BUNDLE_PATH: vendor/bundle
           PSQL_PAGER: ''
           PAGER: cat # prevent psql commands using less
+        network_mode: bridge
   postgres-executor:
     docker:
       - image: cimg/postgres:16.7
         environment:
           POSTGRES_USER: ubuntu
           POSTGRES_DB: circle_test
-
+        network_mode: bridge
 # Define reusable commands for steps
 commands:
   wait_for_postgres:
