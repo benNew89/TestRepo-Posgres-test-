@@ -1,4 +1,115 @@
 version: 2.1
+
+commands:
+  wait_for_postgres:
+    description: "Wait for Postgres to be ready"
+    steps:
+      - run:
+          name: Wait for Postgres
+          command: dockerize -wait tcp://localhost:5432 -timeout 10m
+
+  configure_bundler:
+    description: "Configure Bundler"
+    steps:
+      - run:
+          name: Configure Bundler
+          command: |
+            echo 'export BUNDLER_VERSION=$(cat Gemfile.lock | tail -1 | tr -d " ")' >> $BASH_ENV
+            source $BASH_ENV
+            gem install bundler
+
+  install_dependencies:
+    description: "Install dependencies"
+    steps:
+      - run:
+          name: Install gem dependencies
+          command: sudo apt update && sudo apt install -y poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
+
+  bundle_check:
+    description: "Run bundle install"
+    steps:
+      - run:
+          name: Bundle install
+          command: 'bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+
+  save_cache:
+    description: "Save cache"
+    steps:
+      - save_cache:
+          key: lifetalesV2-server-bundle-v2-new-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+  # Reusable cache and bundle commands for components
+  restore_cache_for_tracker:
+    description: "Restore cache for Tracker component"
+    steps:
+      - restore_cache:
+          keys:
+            - lifetalesV2-components-tracker-bundle-new-{{ checksum "components/tracker/Gemfile.lock" }}
+            - lifetalesV2-components-tracker-bundle-new-
+  
+  bundle_tracker:
+    description: "Bundle Tracker component"
+    steps:
+      - run:
+          name: Bundle components/tracker
+          command: 'cd components/tracker; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+
+  save_cache_for_tracker:
+    description: "Save cache for Tracker component"
+    steps:
+      - save_cache:
+          key: lifetalesV2-components-tracker-bundle-new-{{ checksum "components/tracker/Gemfile.lock" }}
+          paths:
+            - components/tracker/vendor/bundle
+
+  restore_cache_for_reminders:
+    description: "Restore cache for Reminders component"
+    steps:
+      - restore_cache:
+          keys:
+            - lifetalesV2-components-reminders-bundle-new-{{ checksum "components/reminders/Gemfile.lock" }}
+            - lifetalesV2-components-reminders-bundle-new-
+
+  bundle_reminders:
+    description: "Bundle Reminders component"
+    steps:
+      - run:
+          name: Bundle components/reminders
+          command: 'cd components/reminders; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+
+  save_cache_for_reminders:
+    description: "Save cache for Reminders component"
+    steps:
+      - save_cache:
+          key: lifetalesV2-components-reminders-bundle-new-{{ checksum "components/reminders/Gemfile.lock" }}
+          paths:
+            - components/reminders/vendor/bundle
+
+  restore_cache_for_commerce:
+    description: "Restore cache for Commerce component"
+    steps:
+      - restore_cache:
+          keys:
+            - lifetalesV2-components-commerce-bundle-new-{{ checksum "components/commerce/Gemfile.lock" }}
+            - lifetalesV2-components-commerce-bundle-new-
+
+  bundle_commerce:
+    description: "Bundle Commerce component"
+    steps:
+      - run:
+          name: Bundle components/commerce
+          command: 'cd components/commerce; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+
+  save_cache_for_commerce:
+    description: "Save cache for Commerce component"
+    steps:
+      - save_cache:
+          key: lifetalesV2-components-commerce-bundle-new-{{ checksum "components/commerce/Gemfile.lock" }}
+          paths:
+            - components/commerce/vendor/bundle
+
 jobs:
   build:
     docker:
@@ -20,9 +131,10 @@ jobs:
     steps:
       # Machine Setup
       - checkout
-      - run:
-          name: Wait for Postgres
-          command: dockerize -wait tcp://localhost:5432 -timeout 10m
+      - wait_for_postgres
+      # - run:
+      #     name: Wait for Postgres
+      #     command: dockerize -wait tcp://localhost:5432 -timeout 10m
       # Prepare for artifact and test results collection
       - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
       # Dependencies
