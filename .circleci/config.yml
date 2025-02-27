@@ -1,13 +1,8 @@
-version: 2
-jobs:
-  build:
-    working_directory: ~/LifeTales/lifetalesV2-server
-    shell: /bin/bash --login
-    # CircleCI 2.0 does not support environment variables that refer to each other the same way as 1.0 did.
-    # If any of these refer to each other, rewrite them so that they don't or see https://circleci.com/docs/2.0/env-vars/#interpolating-environment-variables-to-set-other-environment-variables .
-    environment:
-      CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
-      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+version: 2.1
+
+# Define reusable executors for jobs that need to run in the same Docker containers
+executors:
+  ruby-executor:
     docker:
       - image: cimg/ruby:3.0.5-node
         environment:
@@ -20,45 +15,44 @@ jobs:
           BUNDLE_PATH: vendor/bundle
           PSQL_PAGER: ''
           PAGER: cat # prevent psql commands using less
+  postgres-executor:
+    docker:
       - image: cimg/postgres:16.7
         environment:
           POSTGRES_USER: ubuntu
           POSTGRES_DB: circle_test
-    resource_class: medium
-      
+
+# Define reusable commands for steps
+commands:
+  wait_for_postgres:
     steps:
-      # Machine Setup
-      #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
-      # The following `checkout` command checks out your code to your working directory. In 1.0 we did this implicitly. In 2.0 you can choose where in the course of a job your code should be checked out.
-      # Force Disconnect Users
-      - checkout
       - run:
           name: Wait for Postgres
           command: dockerize -wait tcp://localhost:5432 -timeout 10m
-      # Prepare for artifact and test results  collection equivalent to how it was done on 1.0.
-      # In many cases you can simplify this from what is generated here.
-      # 'See docs on artifact collection here https://circleci.com/docs/2.0/artifacts/'
+  setup_artifacts_and_tests:
+    steps:
       - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
-      # Dependencies
-      #   This would typically go in either a build or a build-and-test job when using workflows
-      # The following line was run implicitly in your 1.0 builds based on what CircleCI inferred about the structure of your project. In 2.0 you need to be explicit about which commands should be run. In some cases you can discard inferred commands if they are not relevant to your project.
-      - run: echo -e "export RAILS_ENV=test\nexport RACK_ENV=test" >> $BASH_ENV
+  configure_bundler:
+    steps:
       - run:
           name: Configure Bundler
           command: |
             echo 'export BUNDLER_VERSION=$(cat Gemfile.lock | tail -1 | tr -d " ")' >> $BASH_ENV
             source $BASH_ENV
             gem install bundler
+  install_dependencies:
+    steps:
       - run: curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-      - run: 
-          name: install gem dependencies
-          #command: sudo apt update && sudo apt install -y nodejs poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
-          command: sudo apt update && sudo apt install -y poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
       - run:
-          name: bundle lifetalesV2-server
+          name: Install gem dependencies
+          command: sudo apt update && sudo apt install -y poppler-utils imagemagick libmagickcore-dev libmagickwand-dev pkg-config libgeos-dev libgeos++-dev libproj-dev || true
+  bundle_lifetales:
+    steps:
+      - run:
+          name: Bundle lifetalesV2-server
           command: 'bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
-
-    # The following line was run implicitly in your 1.0 builds based on what CircleCI inferred about the structure of your project. In 2.0 you need to be explicit about which commands should be run. In some cases you can discard inferred commands if they are not relevant to your project.
+  create_database_config:
+    steps:
       - run: |-
           mkdir -p config && echo 'test:
             database: circle_test
@@ -68,72 +62,53 @@ jobs:
             username: ubuntu
             host: localhost
           ' > config/database.yml
+  install_postgresql_client:
+    steps:
       - run: sudo apt-get --allow-releaseinfo-change update
-      - run: sudo apt install -y libvips || true
-      - run: sudo apt install -y postgresql-client || true
-      - run: sudo apt install -y poppler-utils || true
-      # MAILERLITE_API_TOKEN is added here because the gem initializes directly from DotEnv and is not found
-      #- run: MAILERLITE_API_TOKEN=mailerlite-api-token bundle exec rake db:create db:test:load --trace
-      - run: MAILERLITE_API_TOKEN=mailerlite-api-token RAILS_ENV=test bundle exec rails db:drop db:create db:schema:load --trace
-      # - run:
-      #    name: Force Disconnect Users from Postgres
-      #    command: |
-      #      echo "Before disconnecting:"
-      #      psql -U ubuntu -d circle_test -c "SELECT pid, usename, state FROM pg_stat_activity WHERE datname = 'circle_test';"
-      
-      #      echo "Preventing new connections..."
-      #      psql -U ubuntu -d circle_test -c "ALTER DATABASE circle_test CONNECTION LIMIT 0;"
-      
-      #      echo "Canceling active queries..."
-      #      psql -U ubuntu -d circle_test -c "
-      #        SELECT pg_cancel_backend(pg_stat_activity.pid) 
-      #        FROM pg_stat_activity 
-      #        WHERE datname = 'circle_test' AND pid <> pg_backend_pid();
-      #      "
-
-      #      echo "Terminating lingering connections..."
-      #      psql -U ubuntu -d circle_test -c "
-      #        SELECT pg_terminate_backend(pg_stat_activity.pid) 
-      #        FROM pg_stat_activity 
-      #        WHERE datname = 'circle_test' AND pid <> pg_backend_pid();
-      #      "
-
-      #      echo "Waiting for connections to close..."
-      #      sleep 3
-
-      #      echo "After disconnecting:"
-      #      psql -U ubuntu -d circle_test -c "SELECT pid, usename, state FROM pg_stat_activity WHERE datname = 'circle_test';"
-
-      #      echo "Restoring connection limit..."
-      #      psql -U ubuntu -d circle_test -c "ALTER DATABASE circle_test CONNECTION LIMIT -1;"
-      # - run:
-      #    name: Wait for PostgreSQL
-      #    command: |
-      #      for i in {1..10}; do
-      #        pg_isready -U ubuntu && echo "Postgres is ready" && exit 0
-      #        echo "Waiting for Postgres..."
-      #        sleep 2
-      #      done
-      #      echo "Postgres did not start in time" && exit 1
-      # - run:
-      #     name: Setup test database (with retry)
-      #     command: |
-      #       for i in {1..3}; do
-      #         MAILERLITE_API_TOKEN=mailerlite-api-token bundle exec rake db:create db:test:load --trace && exit 0
-      #         echo "Retrying database setup..."
-      #         sleep 5
-      #       done
-      #       echo "Database setup failed" && exit 1
+      - run: sudo apt install -y libvips postgresql-client poppler-utils || true
+  run_migrations:
+    steps:
       - run:
-          name: rspec lifetalesV2-server
+          name: Run migrations
+          command: MAILERLITE_API_TOKEN=mailerlite-api-token RAILS_ENV=test bundle exec rails db:drop db:create db:schema:load --trace
+  run_tests:
+    steps:
+      - run:
+          name: Run rspec tests
           command: MAILERLITE_API_TOKEN=mailerlite-api-token RAILS_ENV=test bundle exec rspec --format progress $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings --timings-type=classname)
-      # Teardown
-      #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
-      # Save test results
+  store_test_results_and_artifacts:
+    steps:
       - store_test_results:
           path: /tmp/circleci-test-results
-      # Save artifacts
       - store_artifacts:
           path: /tmp/circleci-artifacts
       - store_artifacts:
           path: /tmp/circleci-test-results
+
+# Define the build job
+jobs:
+  build:
+    executor: ruby-executor
+    working_directory: ~/LifeTales/lifetalesV2-server
+    shell: /bin/bash --login
+    environment:
+      CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
+      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+    steps:
+      - checkout
+      - wait_for_postgres
+      - setup_artifacts_and_tests
+      - configure_bundler
+      - install_dependencies
+      - bundle_lifetales
+      - create_database_config
+      - install_postgresql_client
+      - run_migrations
+      - run_tests
+      - store_test_results_and_artifacts
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
