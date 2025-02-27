@@ -1,28 +1,18 @@
 version: 2.1
 
-executors:
-  ruby_executor:
+jobs:
+  build:
     docker:
       - image: cimg/ruby:3.0.5-node
         environment:
-          RAILS_ENV: test
-          RACK_ENV: test
-          PGHOST: 127.0.0.1
+          PGHOST: localhost 
           PGUSER: root
-          BUNDLE_JOBS: 3
-          BUNDLE_RETRY: 3
-          BUNDLE_PATH: vendor/bundle
-          PSQL_PAGER: ''
-          PAGER: cat  # Prevent psql commands using less
-  postgres_executor:
-    docker:
+          POSTGRES_USER: ubuntu
+          POSTGRES_DB: circle_test
       - image: cimg/postgres:16.7
         environment:
           POSTGRES_USER: ubuntu
           POSTGRES_DB: circle_test
-
-jobs:
-  build:
     executor: ruby_executor
     working_directory: ~/LifeTales/lifetalesV2-server
     shell: /bin/bash --login
