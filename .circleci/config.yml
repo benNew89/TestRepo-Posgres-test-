@@ -86,7 +86,17 @@ commands:
 # Define the build job
 jobs:
   build:
-    executor: ruby-executor
+    docker:
+      - image: cimg/ruby:3.0.5-node
+        environment:
+          PGHOST: localhost 
+          PGUSER: root
+          POSTGRES_USER: ubuntu
+          POSTGRES_DB: circle_test
+      - image: cimg/postgres:16.7
+        environment:
+          POSTGRES_USER: ubuntu
+          POSTGRES_DB: circle_test
     working_directory: ~/LifeTales/lifetalesV2-server
     shell: /bin/bash --login
     environment:
@@ -94,7 +104,9 @@ jobs:
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
     steps:
       - checkout
-      - wait_for_postgres
+      - run:
+          name: Wait for Postgres
+          command: dockerize -wait tcp://localhost:5432 -timeout 10m
       - setup_artifacts_and_tests
       - configure_bundler
       - install_dependencies
