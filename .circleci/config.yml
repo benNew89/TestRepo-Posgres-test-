@@ -1,25 +1,5 @@
 version: 2.1
 
-# Define reusable executors for jobs that need to run in the same Docker containers
-executors:
-  docker:
-    - image: cimg/postgres:16.7
-        environment:
-          POSTGRES_USER: ubuntu
-          POSTGRES_DB: circle_test
-        network_mode: bridge
-    - image: cimg/ruby:3.0.5-node
-        environment:
-          RAILS_ENV: test
-          RACK_ENV: test
-          PGHOST: 127.0.0.1
-          PGUSER: root
-          BUNDLE_JOBS: 3
-          BUNDLE_RETRY: 3
-          BUNDLE_PATH: vendor/bundle
-          PSQL_PAGER: ''
-          PAGER: cat # prevent psql commands using less
-        network_mode: bridge
 # Define reusable commands for steps
 commands:
   wait_for_postgres:
