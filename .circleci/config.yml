@@ -30,9 +30,9 @@ jobs:
       # The following `checkout` command checks out your code to your working directory. In 1.0 we did this implicitly. In 2.0 you can choose where in the course of a job your code should be checked out.
       # Force Disconnect Users
       - checkout
-      #- run:
-      #    name: Wait for Postgres
-      #    command: dockerize -wait tcp://localhost:5432 -timeout 10m
+      - run:
+          name: Wait for Postgres
+          command: dockerize -wait tcp://localhost:5432 -timeout 10m
       # Prepare for artifact and test results  collection equivalent to how it was done on 1.0.
       # In many cases you can simplify this from what is generated here.
       # 'See docs on artifact collection here https://circleci.com/docs/2.0/artifacts/'
