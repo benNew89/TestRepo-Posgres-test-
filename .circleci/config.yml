@@ -10,7 +10,6 @@ jobs:
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
     docker:
       - image: cimg/ruby:3.0.5-node
-        resource_class: medium
         environment:
           RAILS_ENV: test
           RACK_ENV: test
@@ -22,10 +21,10 @@ jobs:
           PSQL_PAGER: ''
           PAGER: cat # prevent psql commands using less
       - image: cimg/postgres:16.7
-        resource_class: medium
         environment:
           POSTGRES_USER: ubuntu
           POSTGRES_DB: circle_test
+    resource_class: medium
       
     steps:
       # Machine Setup
