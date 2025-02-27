@@ -2,7 +2,6 @@ version: 2.1
 
 # Define reusable executors for jobs that need to run in the same Docker containers
 executors:
-  postgres-executor:
     docker:
       - image: cimg/postgres:16.7
         environment:
