@@ -1,5 +1,4 @@
 version: 2.1
-
 jobs:
   build:
     docker:
@@ -13,7 +12,6 @@ jobs:
         environment:
           POSTGRES_USER: ubuntu
           POSTGRES_DB: circle_test
-    executor: ruby_executor
     working_directory: ~/LifeTales/lifetalesV2-server
     shell: /bin/bash --login
     environment:
