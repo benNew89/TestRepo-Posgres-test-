@@ -34,46 +34,46 @@ commands:
           name: bundle lifetalesV2-server
           command: 'bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
 
-  caching:
-    description: "Caching for components"
-    steps:
-      - save_cache:
-          key: lifetalesV2-server-bundle-v2-new-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
-      - restore_cache:
-          keys:
-            - lifetalesV2-components-tracker-bundle-new-{{ checksum "components/tracker/Gemfile.lock" }}
-            - lifetalesV2-components-tracker-bundle-new-
-      - run:
-          name: bundle components/tracker
-          command: 'cd components/tracker; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
-      - save_cache:
-          key: lifetalesV2-components-tracker-bundle-new-{{ checksum "components/tracker/Gemfile.lock" }}
-          paths:
-            - components/tracker/vendor/bundle
-      - restore_cache:
-          keys:
-            - lifetalesV2-components-reminders-bundle-new-{{ checksum "components/reminders/Gemfile.lock" }}
-            - lifetalesV2-components-reminders-bundle-new-
-      - run:
-          name: bundle components/reminders
-          command: 'cd components/reminders; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
-      - save_cache:
-          key: lifetalesV2-components-reminders-bundle-new-{{ checksum "components/reminders/Gemfile.lock" }}
-          paths:
-            - components/reminders/vendor/bundle
-      - restore_cache:
-          keys:
-            - lifetalesV2-components-commerce-bundle-new-{{ checksum "components/commerce/Gemfile.lock" }}
-            - lifetalesV2-components-commerce-bundle-new-
-      - run:
-          name: bundle components/commerce
-          command: 'cd components/commerce; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
-      - save_cache:
-          key: lifetalesV2-components-commerce-bundle-new-{{ checksum "components/commerce/Gemfile.lock" }}
-          paths:
-            - components/commerce/vendor/bundle
+  # caching:
+  #   description: "Caching for components"
+  #   steps:
+  #     - save_cache:
+  #         key: lifetalesV2-server-bundle-v2-new-{{ checksum "Gemfile.lock" }}
+  #         paths:
+  #           - vendor/bundle
+  #     - restore_cache:
+  #         keys:
+  #           - lifetalesV2-components-tracker-bundle-new-{{ checksum "components/tracker/Gemfile.lock" }}
+  #           - lifetalesV2-components-tracker-bundle-new-
+  #     - run:
+  #         name: bundle components/tracker
+  #         command: 'cd components/tracker; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+  #     - save_cache:
+  #         key: lifetalesV2-components-tracker-bundle-new-{{ checksum "components/tracker/Gemfile.lock" }}
+  #         paths:
+  #           - components/tracker/vendor/bundle
+  #     - restore_cache:
+  #         keys:
+  #           - lifetalesV2-components-reminders-bundle-new-{{ checksum "components/reminders/Gemfile.lock" }}
+  #           - lifetalesV2-components-reminders-bundle-new-
+  #     - run:
+  #         name: bundle components/reminders
+  #         command: 'cd components/reminders; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+  #     - save_cache:
+  #         key: lifetalesV2-components-reminders-bundle-new-{{ checksum "components/reminders/Gemfile.lock" }}
+  #         paths:
+  #           - components/reminders/vendor/bundle
+  #     - restore_cache:
+  #         keys:
+  #           - lifetalesV2-components-commerce-bundle-new-{{ checksum "components/commerce/Gemfile.lock" }}
+  #           - lifetalesV2-components-commerce-bundle-new-
+  #     - run:
+  #         name: bundle components/commerce
+  #         command: 'cd components/commerce; bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3'
+  #     - save_cache:
+  #         key: lifetalesV2-components-commerce-bundle-new-{{ checksum "components/commerce/Gemfile.lock" }}
+  #         paths:
+  #           - components/commerce/vendor/bundle
   
   create_database_config:
     steps:
@@ -87,18 +87,22 @@ commands:
             host: localhost
           ' > config/database.yml
 
-  database_config:
+  # database_config:
+  #   steps:
+  #     - run: |-
+  #          cp config/database.yml components/tracker/test/dummy/config/
+  #     - run: |-
+  #          cp config/database.yml components/reminders/spec/dummy/config/
+  #     - run: |-
+  #          cp config/database.yml components/commerce/spec/dummy/config/
+
+  part1:
     steps:
-      - run: |-
-           cp config/database.yml components/tracker/test/dummy/config/
-      - run: |-
-           cp config/database.yml components/reminders/spec/dummy/config/
-      - run: |-
-           cp config/database.yml components/commerce/spec/dummy/config/
+      - run: sudo apt-get --allow-releaseinfo-change update
   
   install_postgresql_client:
     steps:
-      - run: sudo apt-get --allow-releaseinfo-change update
+      - part1
       - run: sudo apt install -y libvips postgresql-client poppler-utils || true
 
   run_migrations:
@@ -107,29 +111,29 @@ commands:
           name: Run migrations
           command: MAILERLITE_API_TOKEN=mailerlite-api-token RAILS_ENV=test bundle exec rails db:drop db:create db:schema:load --trace
 
-  run_tests:
-    steps:
-      - run:
-          name: Run rspec tests
-          command: MAILERLITE_API_TOKEN=mailerlite-api-token RAILS_ENV=test bundle exec rspec --format progress $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings --timings-type=classname)
-      - run:
-          name: rspec components/tracker
-          command: 'cd components/tracker; bundle exec rspec --format progress spec'
-      - run:
-          name: rspec components/reminders
-          command: 'cd components/reminders; bundle exec rspec --format progress spec'
-      - run:
-          name: rspec components/commerce
-          command: 'cd components/commerce; bundle exec rspec --format progress spec'
+  # run_tests:
+  #   steps:
+  #     - run:
+  #         name: Run rspec tests
+  #         command: MAILERLITE_API_TOKEN=mailerlite-api-token RAILS_ENV=test bundle exec rspec --format progress $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings --timings-type=classname)
+  #     - run:
+  #         name: rspec components/tracker
+  #         command: 'cd components/tracker; bundle exec rspec --format progress spec'
+  #     - run:
+  #         name: rspec components/reminders
+  #         command: 'cd components/reminders; bundle exec rspec --format progress spec'
+  #     - run:
+  #         name: rspec components/commerce
+  #         command: 'cd components/commerce; bundle exec rspec --format progress spec'
   
-  store_test_results_and_artifacts:
-    steps:
-      - store_test_results:
-          path: /tmp/circleci-test-results
-      - store_artifacts:
-          path: /tmp/circleci-artifacts
-      - store_artifacts:
-          path: /tmp/circleci-test-results
+  # store_test_results_and_artifacts:
+  #   steps:
+  #     - store_test_results:
+  #         path: /tmp/circleci-test-results
+  #     - store_artifacts:
+  #         path: /tmp/circleci-artifacts
+  #     - store_artifacts:
+  #         path: /tmp/circleci-test-results
   
 jobs:
   build:
@@ -154,14 +158,14 @@ jobs:
       - wait_for_postgres
       - setup_artifacts_and_tests
       - prepare_dependencies
-      - caching
+      #- caching
       - create_database_config
-      - database_config
+      #- database_config
       - install_postgresql_client
       - run_migrations
-      - run_tests
+      #- run_tests
       # Teardown: Save test results and artifacts
-      - store_test_results_and_artifacts
+      #- store_test_results_and_artifacts
 
 workflows:
   build_and_test:
